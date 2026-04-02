@@ -8,7 +8,7 @@ import router from './routes/userRoutes.js';
 //run the server
 const app = express();
 dotenv.config({ quiet: true })
-const {PORT} = process.env
+const PORT = process.env.PORT || 3000
 // middlewares
 app.use(cors())
 app.use(express.json());
