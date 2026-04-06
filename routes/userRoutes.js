@@ -1,16 +1,22 @@
 import { Router } from "express";
-import { createUser, loginUser } from "../controllers/userControllers.js";
+import { createUser, loginUser, authUser, deleteUser } from "../controllers/userControllers.js";
 
 
-const router = Router()
+const userRouter = Router()
 
-router.get('/test', (req, res)=>{
+userRouter.get('/test', (req, res)=>{
     res.send("The first router")
 })
 //Create User Route
-router.post('/sign-up', createUser);
+userRouter.post('/sign-up', createUser);
 
 //LogIn User Route
-router.post('/login', loginUser)
+userRouter.post('/login', loginUser)
 
-export default router
+//Auth User Route
+userRouter.get('/auth', authUser)
+
+//Delete User Route
+userRouter.delete('/delete', deleteUser)
+
+export default userRouter

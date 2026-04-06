@@ -2,7 +2,8 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import { pool } from './config/db.js';
-import router from './routes/userRoutes.js';
+import userRouter from './routes/userRoutes.js';
+import formRouter from './routes/formRoutes.js';
 
 
 //run the server
@@ -16,7 +17,8 @@ app.use(express.json());
 
 // Routes
 // User Routes
-app.use('/api/user', router)
+app.use('/api/user', userRouter)
+app.use('/api/form', formRouter)
 
 
 //Connect to the database and add the sever listening

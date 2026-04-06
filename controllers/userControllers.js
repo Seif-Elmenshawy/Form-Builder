@@ -1,6 +1,7 @@
 import { pool } from "../config/db.js"
 import bcrypt from 'bcrypt'
 import jwtGenerator from "../utilities/jwtGenerator.js"
+import jwtAuth from "../utilities/jwtAuth.js"
 
 //Creating users route
 export const createUser = async (req, res)=>{
@@ -46,6 +47,35 @@ export const loginUser = async (req,res)=>{
 
     } catch (error) {
         console.log("Error in loginUser fucntion: ", error)
+        res.status(500).json({message:"Internal Server Error"})
+    }
+}
+
+//Authenticate User
+export const authUser = async (req, res) => {
+    const {token} = req.body
+    const tokenStatus = jwtAuth(token)
+    if (tokenStatus.state === "invalid"){
+        return res.status(401).json({status:"invalid", message:"Invalid Token"})
+    }
+    const data = tokenStatus.payload
+
+    res.status(200).json({status:"valid", message: "Valid token, the user is authorized", data:data})
+}
+
+//Delete User
+export const deleteUser = async (req, res) => {
+    try {
+        const {token} = req.body
+        const tokenStatus = jwtAuth(token)
+        if (tokenStatus === "invalid"){
+            return res.status(401).json({status:"invalid", message:"Session timeout, try signing in again"})
+        }
+        const data = tokenStatus.payload
+        const deletedUser = await pool.query("DELETE FROM users WHERE id = $1", [data.user])
+        res.status(200).json({message: "User is deleted successfully", user:deletedUser.rows[0]})
+    } catch (error) {
+        console.log("Error in Delete User Function", error)
         res.status(500).json({message:"Internal Server Error"})
     }
 }

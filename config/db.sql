@@ -7,3 +7,24 @@ CREATE TABLE users(
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
+
+/*CREATE FORMS TABLE*/
+CREATE TABLE forms(
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    is_published BOOLEAN NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER REFERENCES users(id)
+);
+
+/*CREATE QUESTIONS TABLE*/
+CREATE TABLE questions(
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    type TEXT NOT NULL,
+    require BOOLEAN NOT NULL,
+    form_id INTEGER REFERENCES forms(id)
+);
+
+
