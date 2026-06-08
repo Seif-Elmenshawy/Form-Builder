@@ -11,7 +11,7 @@ userRouter.get('/test', (req, res)=>{
 userRouter.post('/sign-up', createUser);
 
 //LogIn User Route
-userRouter.post('/login', loginUser)
+userRouter.post('/log-in', loginUser)
 
 //Auth User Route
 userRouter.get('/auth', authUser)
