@@ -67,12 +67,58 @@ export const openform = async (req, res) => {
       choices.question_id = questions.id WHERE forms.id = $1`, [formId])
     res.json({ data: form.rows })
   } catch (error) {
-
+    return res.status(500).json({ message: "Internal Server Error" })
   }
 }
 
-export const submitForms = async () => {
-  const answers = req.body
-  const formId = req.params.formId
-  res.json({ data: answers })
+export const submitForms = async (req, res) => {
+  try {
+    const { answers } = req.body
+    const formId = req.params.formId
+    //Check if the form is available
+    const status = await pool.query(`SELECT * FROM forms WHERE forms.id = $1`, [formId])
+    if (status.rows.length == 0) {
+      return res.status(404).json({ status: "failed", message: "Form not Found" })
+    }
+    const submission = await pool.query(`INSERT INTO submissions(form_id) VALUES($1) RETURNING *`, [formId])
+    const submission_id = await submission.rows[0].id
+    for (const q in answers) {
+      const { value, question_id } = answers[q]
+      const question = await pool.query(`SELECT * FROM questions WHERE id = $1`, [question_id])
+      const question_type = await question.rows[0].type
+      const answer = await pool.query(`INSERT INTO answers(value, question_id, answer_type, submission_id) VALUES($1, $2, $3, $4) RETURNING *`, [value, question_id, question_type, submission_id])
+      console.log(answer.rows[0])
+    }
+    return res.status(200).json({ state: "Success", message: "Form Submitted Successfully", data: answers })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+}
+
+export const getAnswers = async (req, res) => {
+  try {
+    const formId = req.params.formId
+    const token = req.cookies.token
+
+    // Check if the token is valid
+    const tokenStatus = jwtAuth(token)
+    if (tokenStatus.state == "invalid") {
+      return res.status(401).json({ message: "Token Invalid or Expired" })
+    }
+
+    //Check if the user Has Access to the form
+    const form = await pool.query(`SELECT * FROM forms WHERE forms.id = $1`, [formId])
+    if (form.rows.legnth == 0) {
+      return res.status(404).json({ state: "Failed", message: "The form is not available" })
+    }
+
+    console.log(form.rows[0].user_id == tokenState.payload.user)
+    //    if (form.rows[0].user_id != tokenState.payload.user) {}
+
+  } catch (error) {
+
+  }
+
+
 }
