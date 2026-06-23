@@ -63,24 +63,14 @@ export const loginUser = async (req, res) => {
 }
 
 export const authUser = async (req, res) => {
-  const { token } = req.body
-  const tokenStatus = jwtAuth(token)
-  if (tokenStatus.state === "invalid") {
-    return res.status(401).json({ status: "invalid", message: "Invalid Token" })
-  }
-  const data = tokenStatus.payload
+  const data = req.user
 
   res.status(200).json({ status: "valid", message: "Valid token, the user is authorized", data: data })
 }
 
 export const deleteUser = async (req, res) => {
   try {
-    const { token } = req.body
-    const tokenStatus = jwtAuth(token)
-    if (tokenStatus === "invalid") {
-      return res.status(401).json({ status: "invalid", message: "Session timeout, try signing in again" })
-    }
-    const data = tokenStatus.payload
+    const data = req.user
     const deletedUser = await pool.query("DELETE FROM users WHERE id = $1", [data.user])
     res.status(200).json({ message: "User is deleted successfully", user: deletedUser.rows[0] })
   } catch (error) {

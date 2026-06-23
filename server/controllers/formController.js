@@ -2,15 +2,11 @@ import { pool } from "../config/db.js";
 import jwtAuth from "../utilities/jwtAuth.js";
 
 export const createForm = async (req, res) => {
+
   const { form_title, form_description, questions } = req.body
-  const token = req.cookies.token
-  const tokenStatus = jwtAuth(token)
-  if (tokenStatus.state === "invalid") {
-    return res.status(401).json({ status: "invalid", message: "Invalid Token" })
-  }
 
   try {
-    const user_id = tokenStatus.payload.user
+    const user_id = req.body.user
     // Add a row to the forms table
     const form = await pool.query('INSERT INTO forms(form_title, description,is_published, user_id) VALUES($1,$2,$3,$4) RETURNING *',
       [form_title, form_description, false, user_id]
@@ -35,15 +31,10 @@ export const createForm = async (req, res) => {
 }
 
 export const getforms = async (req, res) => {
-  const token = req.cookies.token
-  const tokenStatus = jwtAuth(token)
 
-  if (tokenStatus.status === "invalid") {
-    return res.status(401).json({ state: "invalid", message: "The token is invalid" })
-  }
 
   try {
-    const userId = tokenStatus.payload.user;
+    const userId = req.user.user;
     const forms = await pool.query("SELECT * FROM forms WHERE user_id = $1", [userId])
     console.log(forms.rows)
     return res.status(200).json({ message: "fetching data succeded", data: forms.rows })
@@ -96,19 +87,15 @@ export const submitForms = async (req, res) => {
 export const getAnswers = async (req, res) => {
   try {
     const formId = req.params.formId
-    const token = req.cookies.token
 
-    const tokenStatus = jwtAuth(token)
-    if (tokenStatus.state == "invalid") {
-      return res.status(401).json({ message: "Token Invalid or Expired" })
-    }
+    const userId = req.user.user
 
     const form = await pool.query(`SELECT * FROM forms WHERE forms.id = $1`, [formId])
     if (form.rows.legnth == 0) {
       return res.status(404).json({ state: "Failed", message: "The form is not available" })
     }
 
-    if (form.rows[0].user_id != tokenStatus.payload.user) {
+    if (form.rows[0].user_id != userId) {
       return res.status(402).json({ message: "You are not authorized to view this page" })
     }
 
