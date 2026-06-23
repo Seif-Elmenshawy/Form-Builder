@@ -7,11 +7,9 @@ import userRouter from './routes/userRoutes.js';
 import formRouter from './routes/formRoutes.js';
 import morgan from "morgan"
 
-//run the server
 const app = express();
 dotenv.config({ quiet: true })
 const PORT = process.env.PORT || 3000
-// middlewares
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
@@ -20,15 +18,9 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(morgan("dev"))
 
-
-
-// Routes
-// User Routes
 app.use('/api/user', userRouter)
 app.use('/api/form', formRouter)
 
-
-//Connect to the database and add the sever listening
 pool.connect().then(app.listen(PORT, () => {
   console.log("Server listening on http://localhost:3000",
     "DB connected Successfully")

@@ -1,4 +1,3 @@
-/*CREATE USERS TABLE*/
 CREATE TABLE choices(
     id UUID PRIMARY KEY DEFAULT get_random_uuid(),
     choice_title TEXT NOT NULL,
@@ -13,7 +12,6 @@ CREATE TABLE users(
 );
 
 
-/*CREATE FORMS TABLE*/
 CREATE TABLE forms(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     form_title TEXT NOT NULL,
@@ -23,7 +21,6 @@ CREATE TABLE forms(
     user_id UUID REFERENCES users(id) ON DELETE CASCADE
 );
 
-/*CREATE QUESTIONS TABLE*/
 CREATE TABLE questions(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     question_title TEXT NOT NULL,
@@ -33,21 +30,15 @@ CREATE TABLE questions(
 );
 
 
-/* CREATE CHOICES TABLE */
-
 SELECT * FROM usersINNER JOIN forms on users.id = forms.user_id
 INNER JOIN questions on forms.id = questions.form_id
 INNER JOIN choices on qustions.id = choices.question_id;
 
-
-/* CREATE SUBMISSIONS TABLE */
 CREATE TABLE submissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   form_id UUID REFERENCES forms(id) ON DELETE CASCADE
 );
-
-/* CREATE ANSWERES TABLE */
 CREATE TABLE answers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   submission_id UUID REFERENCES submissions(id) ON DELETE CASCADE,

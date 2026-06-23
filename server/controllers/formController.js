@@ -8,7 +8,6 @@ export const createForm = async (req, res) => {
   if (tokenStatus.state === "invalid") {
     return res.status(401).json({ status: "invalid", message: "Invalid Token" })
   }
-  //const data = tokenStatus.payload.user
 
   try {
     const user_id = tokenStatus.payload.user
@@ -57,7 +56,6 @@ export const getforms = async (req, res) => {
 export const openform = async (req, res) => {
   const formId = req.params.formId
   try {
-    // Check if the form available
     const status = await pool.query("SELECT * FROM forms WHERE forms.id = $1", [formId])
     if (status.rows.length == 0) {
       return res.status(404).json({ status: "failed", message: "Form not found" })
@@ -75,7 +73,6 @@ export const submitForms = async (req, res) => {
   try {
     const { answers } = req.body
     const formId = req.params.formId
-    //Check if the form is available
     const status = await pool.query(`SELECT * FROM forms WHERE forms.id = $1`, [formId])
     if (status.rows.length == 0) {
       return res.status(404).json({ status: "failed", message: "Form not Found" })
@@ -101,23 +98,27 @@ export const getAnswers = async (req, res) => {
     const formId = req.params.formId
     const token = req.cookies.token
 
-    // Check if the token is valid
     const tokenStatus = jwtAuth(token)
     if (tokenStatus.state == "invalid") {
       return res.status(401).json({ message: "Token Invalid or Expired" })
     }
 
-    //Check if the user Has Access to the form
     const form = await pool.query(`SELECT * FROM forms WHERE forms.id = $1`, [formId])
     if (form.rows.legnth == 0) {
       return res.status(404).json({ state: "Failed", message: "The form is not available" })
     }
 
-    console.log(form.rows[0].user_id == tokenState.payload.user)
-    //    if (form.rows[0].user_id != tokenState.payload.user) {}
+    if (form.rows[0].user_id != tokenStatus.payload.user) {
+      return res.status(402).json({ message: "You are not authorized to view this page" })
+    }
+
+    const answers = await pool.query(`SELECT * FROM submissions INNER JOIN answers on submissions.id = answers.submission_id WHERE submissions.form_id = $1`, [formId])
+
+    return res.status(200).json({ message: "Form Fetched Successfully", data: answers.rows })
 
   } catch (error) {
-
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
   }
 
 
