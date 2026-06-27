@@ -41,7 +41,7 @@ export const loginUser = async (req, res) => {
   try {
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
     if (user.rows.length == 0) {
-      return res.status(401).json({ state: false, message: "User Not Found" })
+      return res.status(401).json({ state: false, message: "Email is incorrect" })
     }
     const checkPassword = await bcrypt.compare(password, user.rows[0].password)
     if (!checkPassword) {

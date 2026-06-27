@@ -1,12 +1,12 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Auth from './pages/Auth/Auth.jsx'
-import Dashboard from './pages/Dashboard/Dashboard.jsx'
+import Login from "./pages/Auth/login"
+import Dashboard from './pages/Dashboard/Dashboard'
 
 const App = () => {
   return (
     <Routes>
-      <Route path='/' element={<Auth />} />
+      <Route path='/login' element={<Login />} />
       <Route path='/dashboard' element={<Dashboard />} />
     </Routes>
   )
